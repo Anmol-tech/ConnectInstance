@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:docker/Pages/BarHandler.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+
 import 'package:ssh/ssh.dart';
 import 'package:xterm/flutter.dart';
 import 'package:xterm/xterm.dart';
@@ -20,7 +22,7 @@ class _HomePageState extends State<HomePage> {
   var _ip;
   String _cmd;
   TextEditingController _controller;
-  bool isConnected = false;
+  var getConnect = Connect();
 
   Widget _getCommand() {
     _terminal = Terminal();
@@ -77,7 +79,7 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            isConnected ? _getCommand() : _getIpKey(),
+            getConnect.isConnected ? _getCommand() : _getIpKey(),
           ],
         ),
       ),
@@ -241,7 +243,7 @@ class _HomePageState extends State<HomePage> {
 
     if (res == "session_connected") {
       setState(() {
-        isConnected = true;
+        getConnect.isConnected = true;
       });
       _startTerminal();
     }
@@ -258,7 +260,7 @@ class _HomePageState extends State<HomePage> {
 
   _exitSSH() async {
     setState(() {
-      isConnected = false;
+      getConnect.isConnected = false;
     });
 
     await _client.disconnect();

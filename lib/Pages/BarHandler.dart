@@ -2,6 +2,10 @@ import 'package:docker/Pages/HomePage.dart';
 import 'package:docker/Pages/Status.dart';
 import 'package:flutter/material.dart';
 
+class Connect {
+  bool isConnected = false;
+}
+
 class BarHandler extends StatefulWidget {
   @override
   _BarHandlerState createState() => _BarHandlerState();
