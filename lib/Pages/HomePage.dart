@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -17,8 +16,10 @@ class _HomePageState extends State<HomePage> {
   Terminal _terminal;
   var _globalFormKey = GlobalKey<FormState>();
   String _pemKey;
-  String username;
+  String username = 'root';
   var _ip;
+  String _cmd;
+  TextEditingController _controller;
   bool isConnected = false;
 
   Widget _getCommand() {
@@ -38,12 +39,16 @@ class _HomePageState extends State<HomePage> {
             Row(
               children: [
                 Text(
-                  username + '\$',
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+                  username + '\$ ',
+                  style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 18,
+                      color: Colors.yellow),
                 ),
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.7,
+                  width: MediaQuery.of(context).size.width * 0.63,
                   child: TextField(
+                    controller: _controller,
                     cursorWidth: 6,
                     autofocus: true,
                     cursorColor: Colors.white,
@@ -52,11 +57,14 @@ class _HomePageState extends State<HomePage> {
                       fontWeight: FontWeight.w600,
                     ),
                     decoration: InputDecoration(border: InputBorder.none),
+                    onChanged: (value) {
+                      _cmd = value.trim();
+                    },
                   ),
                 ),
-                Material(
-                  child: Icon(Icons.send),
-                )
+                IconButton(
+                    icon: Icon(Icons.keyboard_arrow_right),
+                    onPressed: () => _executeCmd())
               ],
             ),
           ],
@@ -197,14 +205,21 @@ class _HomePageState extends State<HomePage> {
 
   _startTerminal() async {
     var result = await _client.startShell(
-      ptyType: "xterm",
+      ptyType: "ansi",
       callback: (dynamic res) {
-        print(res);
+        print(res.toString());
+        _writeTerminal(res);
       },
     );
+
     _terminal.write("Session Conneted to IP : $_ip as Host : $username\n");
-    // print(result.toString());
-    // await _client.writeToShell("ls\n");
+  }
+
+  _writeTerminal(res) {
+    _terminal.setAutoWrapMode(true);
+    _terminal.setNewLineMode();
+
+    _terminal.write(res + '\n');
   }
 
   _onConnect() {
@@ -232,6 +247,10 @@ class _HomePageState extends State<HomePage> {
       });
       _startTerminal();
     }
+  }
+
+  _executeCmd() async {
+    _client.writeToShell(_cmd + '\n');
   }
 
   _exitSSH() async {
