@@ -26,49 +26,47 @@ class _HomePageState extends State<HomePage> {
     _terminal = Terminal();
     _terminal.setShowCursor(false);
 
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              height: MediaQuery.of(context).size.height * 0.4,
-              child: TerminalView(terminal: _terminal),
-            ),
-            Row(
-              children: [
-                Text(
-                  username + '\$ ',
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            height: MediaQuery.of(context).size.height * 0.4,
+            child: TerminalView(terminal: _terminal),
+          ),
+          Row(
+            children: [
+              Text(
+                username + '\$ ',
+                style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 18,
+                    color: Colors.yellow),
+              ),
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.63,
+                child: TextField(
+                  controller: _controller,
+                  cursorWidth: 6,
+                  autofocus: true,
+                  cursorColor: Colors.white,
                   style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 18,
-                      color: Colors.yellow),
-                ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.63,
-                  child: TextField(
-                    controller: _controller,
-                    cursorWidth: 6,
-                    autofocus: true,
-                    cursorColor: Colors.white,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    decoration: InputDecoration(border: InputBorder.none),
-                    onChanged: (value) {
-                      _cmd = value.trim();
-                    },
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
                   ),
+                  decoration: InputDecoration(border: InputBorder.none),
+                  onChanged: (value) {
+                    _cmd = value.trim();
+                  },
                 ),
-                IconButton(
-                    icon: Icon(Icons.keyboard_arrow_right),
-                    onPressed: () => _executeCmd())
-              ],
-            ),
-          ],
-        ),
+              ),
+              IconButton(
+                  icon: Icon(Icons.keyboard_arrow_right),
+                  onPressed: () => _executeCmd())
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -204,8 +202,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   _startTerminal() async {
-    var result = await _client.startShell(
-      ptyType: "ansi",
+    await _client.startShell(
+      ptyType: "x-term",
       callback: (dynamic res) {
         print(res.toString());
         _writeTerminal(res);
@@ -218,7 +216,7 @@ class _HomePageState extends State<HomePage> {
   _writeTerminal(res) {
     _terminal.setAutoWrapMode(true);
     _terminal.setNewLineMode();
-
+    _terminal.scrollOffset;
     _terminal.write(res + '\n');
   }
 
@@ -250,14 +248,19 @@ class _HomePageState extends State<HomePage> {
   }
 
   _executeCmd() async {
-    _client.writeToShell(_cmd + '\n');
+    // _controller.text = '';
+    if (_cmd == 'exit()') {
+      _exitSSH();
+    } else {
+      _client.writeToShell(_cmd + '\n');
+    }
   }
 
   _exitSSH() async {
-    // var res = await _client.closeShell();
-    // await _client.disconnect();
-    // setState(() {
-    //   _isConnected = false;
-    // });
+    setState(() {
+      isConnected = false;
+    });
+
+    await _client.disconnect();
   }
 }
