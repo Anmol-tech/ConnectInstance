@@ -47,7 +47,7 @@ class _HomePageState extends State<HomePage> {
                     color: Colors.yellow),
               ),
               SizedBox(
-                width: MediaQuery.of(context).size.width * 0.63,
+                width: MediaQuery.of(context).size.width * 0.54,
                 child: TextField(
                   controller: _controller,
                   cursorWidth: 6,
@@ -96,6 +96,14 @@ class _HomePageState extends State<HomePage> {
               key: _globalFormKey,
               child: Column(
                 children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 30.0),
+                    child: Text(
+                      "Instance Connect",
+                      style:
+                          TextStyle(fontSize: 42, fontWeight: FontWeight.w500),
+                    ),
+                  ),
                   TextFormField(
                     validator: (value) => _ipValidator(value.trim()),
                     onSaved: (newValue) => _ip = newValue.trim(),
@@ -187,9 +195,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   _pickKey() async {
-    FilePickerResult result = await FilePicker.platform
-        .pickFiles(type: FileType.custom, allowedExtensions: ['pem']);
-
+    // FilePickerResult result = await FilePicker.platform
+    //     .pickFiles(type: FileType.custom, allowedExtensions: ['pem']);
+    FilePickerResult result = await FilePicker.platform.pickFiles();
     if (result != null) {
       var pemFile = File(result.files.single.path);
 
